@@ -33,6 +33,8 @@ import io.digdag.core.repository.ResourceConflictException;
 import com.google.common.annotations.VisibleForTesting;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
+import static io.digdag.core.workflow.WorkflowExecutor.now;
+
 public class DatabaseTaskQueueServer
         extends BasicDatabaseStoreManager<DatabaseTaskQueueServer.Dao>
         implements TaskQueueServer
@@ -293,9 +295,13 @@ public class DatabaseTaskQueueServer
     @Override
     public List<TaskQueueLock> lockSharedAgentTasks(int count, String agentId, int lockSeconds, long maxSleepMillis)
     {
+logger.info("lockSharedAgentTasks 0" + now());
         for (int siteId : autoCommit((handle, dao) -> dao.getActiveSiteIdList())) {
+logger.info("lockSharedAgentTasks 1" + now());
             List<Long> taskLockIds = tryLockSharedAgentTasks(siteId, count, agentId, lockSeconds);
+logger.info("lockSharedAgentTasks 2" + now());
             if (!taskLockIds.isEmpty()) {
+logger.info("lockSharedAgentTasks 3" + now());
                 ImmutableList.Builder<TaskQueueLock> builder = ImmutableList.builder();
                 for (long taskLockId : taskLockIds) {
                     ImmutableTaskQueueLock data = autoCommit((handle, dao) -> dao.getTaskData(taskLockId));
@@ -308,6 +314,7 @@ public class DatabaseTaskQueueServer
                         builder.add(data.withLockId(lockId));
                     }
                 }
+logger.info("lockSharedAgentTasks 4" + now());
                 return builder.build();
             }
         }
@@ -316,6 +323,7 @@ public class DatabaseTaskQueueServer
         if (maxSleepMillis >= 0) {
             sleepForEnqueue(maxSleepMillis);
         }
+logger.info("lockSharedAgentTasks 5" + now());
         return ImmutableList.of();
     }
 

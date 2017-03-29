@@ -32,6 +32,7 @@ import javax.annotation.PreDestroy;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -44,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
+import static io.digdag.core.workflow.WorkflowExecutor.now;
 import static io.digdag.spi.TaskExecutionException.buildExceptionErrorConfig;
 
 public class OperatorManager
@@ -183,6 +185,7 @@ public class OperatorManager
     private void runWithWorkspace(Path projectPath, TaskRequest request)
         throws TaskExecutionException
     {
+logger.info("runWithWorkspace 0" + now());
         // evaluate config and creates the complete merged config.
         Config config;
         try {
@@ -213,6 +216,7 @@ public class OperatorManager
             shouldBeUsedKeys.remove("_type");
         }
         else {
+logger.info("runWithWorkspace 1" + now());
             java.util.Optional<String> operatorKey = config.getKeys()
                 .stream()
                 .filter(key -> key.endsWith(">"))
@@ -252,6 +256,7 @@ public class OperatorManager
 
         TaskResult result = callExecutor(projectPath, type, mergedRequest);
 
+
         if (!usedKeys.isAllUsed()) {
             shouldBeUsedKeys.removeAll(usedKeys);
             if (!shouldBeUsedKeys.isEmpty()) {
@@ -262,6 +267,8 @@ public class OperatorManager
         callback.taskSucceeded(request.getSiteId(),
                 request.getTaskId(), request.getLockId(), agentId,
                 result);
+
+logger.info("runWithWorkspace 2" + now());
     }
 
     private void warnUnusedKeys(TaskRequest request, Set<String> shouldBeUsedButNotUsedKeys, Collection<String> candidateKeys)

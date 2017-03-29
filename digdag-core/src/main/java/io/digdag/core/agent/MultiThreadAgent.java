@@ -20,6 +20,8 @@ import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.digdag.core.workflow.WorkflowExecutor.now;
+
 public class MultiThreadAgent
         implements Runnable
 {
@@ -118,14 +120,19 @@ public class MultiThreadAgent
                     int guaranteedAvaialbleThreads = executor.getMaximumPoolSize() - maximumActiveTasks;
                     // Acquire at most guaranteedAvaialbleThreads or 10. This guarantees that all tasks start immediately.
                     int maxAcquire = Math.min(guaranteedAvaialbleThreads, 10);
+logger.info("MultiThreadAgent 0" + now());
                     if (maxAcquire > 0) {
+logger.info("MultiThreadAgent 1" + now());
                         List<TaskRequest> reqs = transactionManager.begin(() ->
                                 taskServer.lockSharedAgentTasks(maxAcquire, agentId, config.getLockRetentionTime(), 1000));
+logger.info("MultiThreadAgent 2" + now());
 
                         for (TaskRequest req : reqs) {
                             executor.submit(() -> {
                                 try {
+logger.info("MultiThreadAgent 3" + now());
                                     runner.run(req);
+logger.info("MultiThreadAgent 4" + now());
                                 }
                                 catch (Throwable t) {
                                     logger.error("Uncaught exception. Task queue will detect this failure and this task will be retried later.", t);
@@ -139,6 +146,7 @@ public class MultiThreadAgent
                         }
                     }
                     else {
+logger.info("MultiThreadAgent 5" + now());
                         // no executor thread is available. sleep for a while until a task execution finishes
                         addActiveTaskLock.wait(500);
                     }

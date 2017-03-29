@@ -507,6 +507,7 @@ public class WorkflowExecutor
                 //    propagatorNotice = true;
                 //}
 
+logger.info("runWhile 0" + now());
                 tm.begin(() -> {
                     propagateBlockedChildrenToReady();
                     return null;
@@ -524,6 +525,7 @@ public class WorkflowExecutor
 
                 boolean shouldWait = tm.begin(() -> {
                     if (propagateAllPlannedToDone()) {
+logger.info("runWhile 1" + now());
                         propagateSessionArchive();
                         return false;
                     }
@@ -533,19 +535,25 @@ public class WorkflowExecutor
                 });
 
                 if (shouldWait) {
+logger.info("runWhile 2" + now());
                     propagatorLock.lock();
+logger.info("runWhile 3" + now());
                     try {
                         if (propagatorNotice) {
+logger.info("runWhile 4" + now());
                             propagatorNotice = false;
                             waitMsec.set(INITIAL_INTERVAL);
                         }
                         else {
+logger.info("runWhile 5" + now());
                             boolean noticed = propagatorCondition.await(waitMsec.get(), TimeUnit.MILLISECONDS);
                             if (noticed && propagatorNotice) {
+logger.info("runWhile 6" + now());
                                 propagatorNotice = false;
                                 waitMsec.set(INITIAL_INTERVAL);
                             }
                             else {
+logger.info("runWhile 7" + now());
                                 waitMsec.set(Math.min(waitMsec.get() * 2, MAX_INTERVAL));
                             }
                         }
@@ -1495,4 +1503,9 @@ public class WorkflowExecutor
             lockedTask.addGeneratedSubtasksWithoutLimit(tasks, ImmutableList.of(), false);
         }
     }
+
+    public static String now() {
+        return " : " + Instant.now().toString();
+    }
+
 }
