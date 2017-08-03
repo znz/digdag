@@ -681,6 +681,7 @@ public class TestUtils
                 n = keyedRequests.size();
             }
             boolean fail = n % failures != 0;
+            logger.info("startRequestFailingProxy: failures={}, n={}, key={}, requests.keys={}", failures, n, key, requests.keySet());
             if (fail) {
                 return Optional.of(error);
             }
