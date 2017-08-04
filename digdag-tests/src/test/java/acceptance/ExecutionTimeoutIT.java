@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import utils.TemporaryDigdagServer;
 
 import java.io.IOException;
@@ -106,6 +108,8 @@ public class ExecutionTimeoutIT
     public static class AttemptTimeoutIT
             extends ExecutionTimeoutIT
     {
+        private final Logger logger = LoggerFactory.getLogger(AttemptTimeoutIT.class);
+
         @Test
         public void testAttemptTimeout()
                 throws Exception
@@ -119,10 +123,22 @@ public class ExecutionTimeoutIT
             Id attemptId = startWorkflow(server.endpoint(), PROJECT_NAME, WORKFLOW_NAME);
 
             // Expect the attempt to get canceled
-            expect(Duration.ofMinutes(4), () -> client.getSessionAttempt(attemptId).getCancelRequested(), Duration.ofSeconds(10));
+            expect(Duration.ofMinutes(2), () -> {
+                if (client.getSessionAttempt(attemptId).getCancelRequested()) {
+                    return true;
+                }
+                logger.info("testAttemptTimeout (waiting 'cancel'): " + client.getSessionAttempt(attemptId));
+                return false;
+            }, Duration.ofSeconds(10));
 
             // And then the attempt should be done pretty soon
-            expect(Duration.ofMinutes(4), () -> client.getSessionAttempt(attemptId).getDone(), Duration.ofSeconds(10));
+            expect(Duration.ofMinutes(2), () -> {
+                if (client.getSessionAttempt(attemptId).getDone()) {
+                    return true;
+                }
+                logger.info("testAttemptTimeout (waiting 'done'): " + client.getSessionAttempt(attemptId));
+                return false;
+            }, Duration.ofSeconds(10));
 
             // Expect a notification to be sent
             expectNotification(attemptId, Duration.ofMinutes(2), "Workflow execution timeout"::equals);
