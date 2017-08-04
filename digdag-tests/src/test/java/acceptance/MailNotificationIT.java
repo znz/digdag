@@ -43,7 +43,6 @@ public class MailNotificationIT
 
     private Wiser mailServer = startMailServer(HOSTNAME, SMTP_USER, SMTP_PASS);
 
-
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
