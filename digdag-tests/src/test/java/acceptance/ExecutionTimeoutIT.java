@@ -127,7 +127,8 @@ public class ExecutionTimeoutIT
                 if (client.getSessionAttempt(attemptId).getCancelRequested()) {
                     return true;
                 }
-                logger.info("testAttemptTimeout (waiting 'cancel'): " + client.getSessionAttempt(attemptId));
+                logger.info("testAttemptTimeout (waiting for 'cancel'): " + client.getSessionAttempt(attemptId));
+                logger.info("testAttemptTimeout (waiting for 'cancel'): " + client.getTasks(attemptId));
                 return false;
             }, Duration.ofSeconds(10));
 
@@ -136,7 +137,8 @@ public class ExecutionTimeoutIT
                 if (client.getSessionAttempt(attemptId).getDone()) {
                     return true;
                 }
-                logger.info("testAttemptTimeout (waiting 'done'): " + client.getSessionAttempt(attemptId));
+                logger.info("testAttemptTimeout (waiting for 'done'): " + client.getSessionAttempt(attemptId));
+                logger.info("testAttemptTimeout (waiting for 'done'): " + client.getTasks(attemptId));
                 return false;
             }, Duration.ofSeconds(10));
 
