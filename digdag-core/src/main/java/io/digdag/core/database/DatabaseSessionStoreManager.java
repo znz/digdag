@@ -391,6 +391,7 @@ public class DatabaseSessionStoreManager
                 )
                 .bind("attemptId", attemptId)
                 .execute();
+            logger.info("requestCancelAttempt: Set cancel requests on {} tasks", n);
             if (n > 0) {
                 handle.createStatement("update session_attempts" +
                         " set state_flags = " + bitOr("state_flags", Integer.toString(AttemptStateFlags.CANCEL_REQUESTED_CODE)) +

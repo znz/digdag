@@ -1247,12 +1247,13 @@ public class WorkflowExecutor
                 result, lockedTask.get());
 
         if (lockedTask.getState() != TaskStateCode.RUNNING) {
-            logger.debug("Ignoring taskSucceeded callback to a {} task",
+            logger.info("Ignoring taskSucceeded callback to a {} task",
                     lockedTask.getState());
             return false;
         }
 
         if (lockedTask.get().getStateFlags().isCancelRequested()) {
+            logger.info("taskSucceeded: id={}, Already canceled. {}", lockedTask.getId(), lockedTask);
             return lockedTask.setToCanceled();
         }
 
@@ -1261,6 +1262,7 @@ public class WorkflowExecutor
         try {
             Optional<Long> rootSubtaskId = addSubtasksIfNotEmpty(lockedTask, result.getSubtaskConfig());
             Optional<Long> checkTaskId = addCheckTasksIfAny(lockedTask, rootSubtaskId);
+            logger.info("taskSucceeded: id={}, rootSubtaskId={}, checkTaskId={}", lockedTask.getId(), rootSubtaskId, checkTaskId);
             subtaskAdded = rootSubtaskId.isPresent() || checkTaskId.isPresent();
         }
         catch (TaskLimitExceededException ex) {
