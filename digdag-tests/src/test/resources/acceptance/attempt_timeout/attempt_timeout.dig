@@ -1,5 +1,5 @@
 +foo:
-  loop>: 900
+  loop>: 950
   _do:
     sh>: sleep 1
 
