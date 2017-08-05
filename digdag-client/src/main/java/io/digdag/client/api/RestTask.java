@@ -25,6 +25,8 @@ public interface RestTask
 
     String getState();
 
+    String getFlags();
+
     Config getExportParams();
 
     Config getStoreParams();
