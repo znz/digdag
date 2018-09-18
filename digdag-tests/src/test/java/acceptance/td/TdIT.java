@@ -388,7 +388,7 @@ public class TdIT
     public void testRetries()
             throws Exception
     {
-        int failures = 7;
+        int failures = 3;
 
         ConcurrentMap<String, List<FullHttpRequest>> requests = new ConcurrentHashMap<>();
 
